@@ -2,6 +2,29 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+export async function GET(request: Request) {
+  try {
+    const userId = request.headers.get('userId');  // Assuming the userId is passed in the headers
+    
+    // const userId = sessionStorage.getItem('userId'); // Get userId from session storage
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'User ID is required' }), { status: 400 });
+    }
+
+    // Fetch posts from the database for the logged-in user
+    const posts = await prisma.post.findMany({
+      where: {
+        userId: parseInt(userId),
+      },
+    });
+
+    return new Response(JSON.stringify(posts), { status: 200 });
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return new Response(JSON.stringify({ error: 'Error fetching posts' }), { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     // Use formData() instead of json() because we're dealing with a multipart request (for files)

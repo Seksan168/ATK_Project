@@ -17,6 +17,7 @@
     "formidable": "^3.5.4",
     "fs": "^0.0.1-security",
     "js-cookie": "^3.0.5",
+    "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.503.0",
     "multer": "^1.4.5-lts.2",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/js-cookie": "^3.0.6",
+    "@types/json2csv": "^5.0.7",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
     "@types/react": "^19",

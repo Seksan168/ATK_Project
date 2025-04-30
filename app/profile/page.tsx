@@ -21,6 +21,7 @@ export default function Page() {
           <p>
             Welcome, <b>{session.user.name}!</b>
           </p>
+          
           <p>Email: {session.user.email}</p>
           <p>Role: {session.user.role}</p>
           <button

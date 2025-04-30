@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export default function Page() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function Page() {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const useridSession = sessionStorage.getItem("userid");
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -34,6 +35,8 @@ export default function Page() {
       if (rememberMe) {
         // Save user data to localStorage (you can save more data as needed)
         localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("userid", sessionStorage.getItem("userid") || ""); 
+        
         localStorage.setItem("email", formData.email); // Save email or other identifiers
         // localStorage.setItem("userid", result?.); // Save email or other identifiers
       } else {
@@ -42,7 +45,7 @@ export default function Page() {
       }
 
       // Redirect to profile after successful sign-in
-      // router.push("/profile");
+      router.push("/atk");
     } catch (err) {
       console.error("An error occurred:", err);
       setError("Something went wrong. Please try again.");
