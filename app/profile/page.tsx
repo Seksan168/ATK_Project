@@ -1,63 +1,37 @@
-'use client'; // Ensure this file is treated as a client-side component
+'use client'
 
-import { useEffect, useState } from 'react';
+import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+export default function Page() {
+  const { data: session, status } = useSession()
 
-
-const UserProfile = () => {
-  const [userData, setUserData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-  
+  const router = useRouter()
 
   useEffect(() => {
-    // Retrieve the JWT token from localStorage
-    const token = localStorage.getItem('token'); // Retrieve token from localStorage
-    console.log('Token:', token); // Log the token for debugging
-
-    if (!token) {
-      setError('User is not logged in');
-      // Redirect to login if token is not found
-      return;
+    if (status === 'unauthenticated') {
+      router.push('/')
     }
-
-    // Fetch user data from the server
-    const fetchUserData = async () => {
-      const response = await fetch('/api/auth/user', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,  // Send token in Authorization header
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setUserData(data);  // Store user data
-      } else {
-        setError(data.message || 'An unexpected error occurred');
-      }
-    };
-
-    fetchUserData();
-  } ); // Ensure this effect runs once on component mount
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
+  }, [status, router])
   return (
-    <div>
-      <h1>User Profile</h1>
-      {userData ? (
-        <div>
-          <p><strong>Email:</strong> {userData.email}</p>
-          <p><strong>Username:</strong> {userData.name}</p>
-          <p><strong>Joined on:</strong> {new Date(userData.createdAt).toLocaleDateString()}</p>
+    status === 'authenticated' &&
+    session?.user && (
+      <div className="flex h-screen items-center justify-center">
+        <div className="bg-white p-6 rounded-md shadow-md">
+          <p>
+            Welcome, <b>{session.user.name}!</b>
+          </p>
+          <p>Email: {session.user.email}</p>
+          <p>Role: {session.user.role}</p>
+          <button
+            onClick={() => signOut({ callbackUrl: '/' })}
+            className="w-full bg-blue-500 text-white py-2 rounded"
+          >
+            Logout
+          </button>
         </div>
-      ) : (
-        <p>Loading user data...</p>
-      )}
-    </div>
-  );
-};
+      </div>
 
-export default UserProfile;
+  )
+  )
+}

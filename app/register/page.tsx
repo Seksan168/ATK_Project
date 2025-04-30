@@ -14,7 +14,7 @@ export default function Register() {
     // Clear any previous error message
     setError(null);
 
-    const response = await fetch('/api/auth/register', {
+    const response = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

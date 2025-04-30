@@ -1,50 +1,47 @@
-// pages/api/posts/create.ts
-import { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../../lib/prisma';
-import fs from 'fs';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === 'GET') {
-        try {
-        const posts = await prisma.post.findMany();
-        res.status(200).json(posts);
-        } catch (error) {
-        console.error('Error fetching posts:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-        }
-    } else
-  if (req.method === 'POST') {
-    try {
-      const { subject, detail, atkResult, userId, photo } = req.body;
+const prisma = new PrismaClient();
 
-      // Handle the file upload, for example, saving the photo to your server or cloud storage
-      let photoUrl = '';
-      if (photo) {
-        // Save the photo to your storage and get the URL
-        // Example: Assuming you're saving the photo on your server and providing the path
-        const photoPath = path.join(__dirname, 'uploads', photo.filename); // Just an example
-        fs.writeFileSync(photoPath, photo.buffer); // Store the photo locally
-        photoUrl = `/uploads/${photo.filename}`; // Return the path or a URL if using a storage service
-      }
+export async function POST(request: Request) {
+  try {
+    // Use formData() instead of json() because we're dealing with a multipart request (for files)
+    const formData = await request.formData();
 
-      // Create the Post in the database
-      const newPost = await prisma.post.create({
-        data: {
-          subject,
-          detail,
-          atkResult,
-          userId,
-          photo: photoUrl, // Store the file URL in the photo field
-        },
-      });
+    // Extract fields from the form data
+    const subject = formData.get('subject') as string;
+    const detail = formData.get('detail') as string;
+    const atkResult = formData.get('atkResult') as string;
+    const userId = formData.get('userId') as string;
+    const photo = formData.get('image') as File | null;  // Get the uploaded file
 
-      res.status(201).json({ message: 'Post created successfully', post: newPost });
-    } catch (error) {
-      console.error('Error creating post:', error);
-      res.status(500).json({ message: 'Internal Server Error' });
+    // Ensure userId is an integer
+    const parsedUserId = parseInt(userId, 10);
+
+    if (isNaN(parsedUserId)) {
+      return new Response(JSON.stringify({ error: 'Invalid userId' }), { status: 400 });
     }
-  } else {
-    res.status(405).json({ message: 'Method Not Allowed' });
+
+    // Handle photo URL if there is an image
+    let photoUrl = '';
+    if (photo) {
+      // Simulate saving the file and returning its path
+      photoUrl = `/uploads/${photo.name}`;
+    }
+
+    // Create the post in the database
+    const newPost = await prisma.post.create({
+      data: {
+        subject,
+        detail,
+        atkResult,
+        photo: photoUrl,
+        userId: parsedUserId,
+      },
+    });
+
+    return new Response(JSON.stringify(newPost), { status: 201 });
+  } catch (error) {
+    console.error("Error creating post:", error); // Log the error for debugging
+    return new Response(JSON.stringify({ error: 'Error saving the post', details: error.message }), { status: 500 });
   }
 }
