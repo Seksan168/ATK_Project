@@ -1,12 +1,15 @@
 import { Inter } from "next/font/google";
 import { getServerSession } from "next-auth";
-import SessionProvider from "./components/SessionProvider";
+import SessionProvider from "../components/SessionProvider";
 import "./globals.css";
-import Header, {header} from "./components/header"
+import Head from "../components/Head";
 
 
 
 const inter = Inter({ subsets: ["latin"] });
+
+
+
 
 export const metadata = {
   title: "Create Next App",
@@ -28,7 +31,7 @@ export default async function RootLayout({
       <html lang="en">
         <body className={inter.className}>
           
-     
+          <Head/>
           {/* Wrapping children with SessionProvider to manage session */}
           <SessionProvider session={session}>{children}</SessionProvider>
          
@@ -40,9 +43,9 @@ export default async function RootLayout({
     return (
       <html lang="en">
         <body className={inter.className}>
-          <header>
+          <Head/>
           <SessionProvider session={null}>{children}</SessionProvider>
-          </header>
+          
         </body>
       </html>
     );
