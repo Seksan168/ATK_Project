@@ -1,8 +1,5 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { PrismaClient } from '@prisma/client'; // Prisma client
-
-const prisma = new PrismaClient();
 
 const Dashboard = () => {
   const [totalSubmissions, setTotalSubmissions] = useState({
@@ -18,69 +15,13 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Fetch total submissions for today, this month, and this year
-        const totalToday = await prisma.post.count({
-          where: {
-            createdAt: {
-              gte: new Date(new Date().setHours(0, 0, 0, 0)), // Start of today
-            },
-          },
-        });
-        const totalThisMonth = await prisma.post.count({
-          where: {
-            createdAt: {
-              gte: new Date(new Date().setDate(1)), // Start of this month
-            },
-          },
-        });
-        const totalThisYear = await prisma.post.count({
-          where: {
-            createdAt: {
-              gte: new Date(new Date().getFullYear(), 0, 1), // Start of this year
-            },
-          },
-        });
+        const response = await fetch('/api/dashboard');
+        const data = await response.json();
 
-        setTotalSubmissions({
-          day: totalToday,
-          month: totalThisMonth,
-          year: totalThisYear,
-        });
-
-        // Fetch the percentage of positive and negative results
-        const totalPosts = await prisma.post.count();
-        const positiveResults = await prisma.post.count({
-          where: {
-            atkResult: 'positive',
-          },
-        });
-        const negativeResults = await prisma.post.count({
-          where: {
-            atkResult: 'negative',
-          },
-        });
-
-        const positivePercentage = ((positiveResults / totalPosts) * 100).toFixed(2);
-        const negativePercentage = ((negativeResults / totalPosts) * 100).toFixed(2);
-
-        setPositivePercentage(positivePercentage);
-        setNegativePercentage(negativePercentage);
-
-        // Fetch students who reported as positive and their email
-        const positiveStudents = await prisma.user.findMany({
-          where: {
-            posts: {
-              some: {
-                atkResult: 'positive',
-              },
-            },
-          },
-          include: {
-            posts: true, // Include the posts so we can check the results
-          },
-        });
-
-        setStudentsPositive(positiveStudents);
+        setTotalSubmissions(data.totalSubmissions);
+        setPositivePercentage(data.positivePercentage);
+        setNegativePercentage(data.negativePercentage);
+        setStudentsPositive(data.studentsPositive);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -145,7 +86,7 @@ const Dashboard = () => {
             <tbody>
               {studentsPositive.length > 0 ? (
                 studentsPositive.map((student) => (
-                  <tr key={student.id} className="border-t">
+                  <tr key={student.email} className="border-t">
                     <td className="p-2">{student.name}</td>
                     <td className="p-2">{student.email}</td>
                   </tr>
