@@ -92,6 +92,12 @@ export default function Register() {
         </form>
         {message && <p className="mt-4 text-center text-sm text-green-600">{message}</p>}
         {error && <p className="mt-4 text-center text-sm text-red-600">{error}</p>}
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Already have an account?{' '}
+          <a href="/login" className="text-indigo-600 hover:text-indigo-500">
+            Login
+          </a>
+        </p>
       </div>
     </div>
   );

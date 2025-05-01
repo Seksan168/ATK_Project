@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import { getServerSession } from "next-auth";
 import SessionProvider from "./components/SessionProvider";
 import "./globals.css";
+import Header, {header} from "./components/header"
 
 
 
@@ -39,9 +40,9 @@ export default async function RootLayout({
     return (
       <html lang="en">
         <body className={inter.className}>
-          
+          <header>
           <SessionProvider session={null}>{children}</SessionProvider>
-         
+          </header>
         </body>
       </html>
     );
