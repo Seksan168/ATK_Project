@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -7,9 +7,29 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
+  
+  // CAPTCHA states
+  const [captcha, setCaptcha] = useState<string>('');  // Store generated CAPTCHA
+  const [userCaptchaInput, setUserCaptchaInput] = useState<string>('');  // Store user input for captcha
+
+  // Generate a random 4-digit number for CAPTCHA
+  useEffect(() => {
+    const generateCaptcha = () => {
+      const captchaNumber = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
+      setCaptcha(captchaNumber.toString()); // Set the generated CAPTCHA
+    };
+    
+    generateCaptcha();
+  }, []);  // Run once when the component mounts
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate CAPTCHA
+    if (userCaptchaInput !== captcha) {
+      setError('Incorrect CAPTCHA. Please try again.');
+      return;
+    }
 
     // Clear any previous error message
     setError(null);
@@ -19,7 +39,7 @@ export default function Register() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email,name, password }),
+      body: JSON.stringify({ email, name, password }),
     });
 
     const data = await response.json();
@@ -53,6 +73,7 @@ export default function Register() {
               placeholder="Enter your email"
             />
           </div>
+          {/* Name */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-600">Name</label>
             <input
@@ -80,6 +101,22 @@ export default function Register() {
               placeholder="Enter your password"
             />
           </div>
+
+          {/* CAPTCHA Section */}
+          <div className="space-y-2">
+            <label htmlFor="captcha" className="block text-sm font-medium text-gray-600">Enter the CAPTCHA</label>
+            <div className="bg-gray-100 p-4 text-center text-lg font-semibold mb-4">{captcha}</div>
+            <input
+              type="text"
+              id="captcha"
+              name="captcha"
+              value={userCaptchaInput}
+              onChange={(e) => setUserCaptchaInput(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none"
+              placeholder="Enter the CAPTCHA"
+            />
+          </div>
+
           {/* Submit Button */}
           <div>
             <button

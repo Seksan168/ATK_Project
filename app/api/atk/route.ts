@@ -1,4 +1,8 @@
 import { PrismaClient } from '@prisma/client';
+import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
+import fs from 'node:fs/promises';
+
 
 const prisma = new PrismaClient();
 
@@ -9,6 +13,8 @@ export async function GET(request: Request) {
     // const userId = sessionStorage.getItem('userId'); // Get userId from session storage
     if (!userId) {
       return new Response(JSON.stringify({ error: 'User ID is required' }), { status: 400 });
+
+      
     }
 
     // Fetch posts from the database for the logged-in user
@@ -25,10 +31,9 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    // Use formData() instead of json() because we're dealing with a multipart request (for files)
-    const formData = await request.formData();
+    const formData = await req.formData();  // Get the form data
 
     // Extract fields from the form data
     const subject = formData.get('subject') as string;
@@ -41,30 +46,41 @@ export async function POST(request: Request) {
     const parsedUserId = parseInt(userId, 10);
 
     if (isNaN(parsedUserId)) {
-      return new Response(JSON.stringify({ error: 'Invalid userId' }), { status: 400 });
+      return NextResponse.json({ error: 'Invalid userId' }, { status: 400 });
     }
 
     // Handle photo URL if there is an image
     let photoUrl = '';
     if (photo) {
-      // Simulate saving the file and returning its path
+      // Convert the photo to a buffer and save it
+      const arrayBuffer = await photo.arrayBuffer();
+      const buffer = new Uint8Array(arrayBuffer);
+
+      // Save the photo file to the server in the uploads folder
+      await fs.writeFile(`./public/uploads/${photo.name}`, buffer);
+
+      // Set the file URL to be stored in the database
       photoUrl = `/uploads/${photo.name}`;
     }
 
-    // Create the post in the database
+    // Create a new ATK post in the database
     const newPost = await prisma.post.create({
       data: {
         subject,
         detail,
         atkResult,
-        photo: photoUrl,
-        userId: parsedUserId,
+        photo: photoUrl, // Save the photo URL
+        userId: parsedUserId, // Store the userId
       },
     });
 
-    return new Response(JSON.stringify(newPost), { status: 201 });
+    // Revalidate the homepage or any path you want to trigger revalidation on
+    revalidatePath('/');
+
+    // Return the created post response
+    return NextResponse.json({ status: 'success', post: newPost }, { status: 201 });
   } catch (error) {
-    console.error("Error creating post:", error); // Log the error for debugging
-    return new Response(JSON.stringify({ error: 'Error saving the post', details: error.message }), { status: 500 });
+    console.error('Error creating post:', error);
+    return NextResponse.json({ status: 'fail', error: error.message }, { status: 500 });
   }
 }

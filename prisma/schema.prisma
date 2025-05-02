@@ -15,26 +15,25 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  name     String
-  password String
-  image     String?
-  role      String   @default("member") 
-  resetToken         String?  // Field to store the reset token (optional)
-  resetTokenExpiry   DateTime? // Field to store the reset token expiry time (optional)
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
-  posts    Post[]
+  id               Int       @id @default(autoincrement())
+  email            String    @unique
+  name             String
+  password         String
+  image            String?
+  role             String    @default("member")
+  resetToken       String? // Field to store the reset token (optional)
+  resetTokenExpiry DateTime? // Field to store the reset token expiry time (optional)
+  createdAt        DateTime? @default(now())
+  updatedAt        DateTime? @updatedAt
+  posts            Post[]
 }
-
 
 model Post {
   id        Int      @id @default(autoincrement())
   subject   String
   detail    String
-  atkResult String   // Field to store the result of the ATK test (positive, negative, etc.)
-  photo     String?  // Field to store the photo URL (optional)
+  atkResult String // Field to store the result of the ATK test (positive, negative, etc.)
+  photo     String? // Field to store the photo URL (optional)
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
