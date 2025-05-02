@@ -8,12 +8,10 @@ const PostPage = () => {
   const { data: session } = useSession(); // Get session data
   const [subject, setSubject] = useState('');
   const [detail, setDetail] = useState('');
-  const [atkResult, setAtkResult] = useState('');
+  const [atkResult, setAtkResult] = useState(''); // Store selected result
   const [photo, setPhoto] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  
-  
 
   // Handle the file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,6 +20,10 @@ const PostPage = () => {
     }
   };
 
+  // Handle ATK result dropdown change
+  const handleAtkResultChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setAtkResult(e.target.value); // Update atkResult state with selected value
+  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,18 +95,21 @@ const PostPage = () => {
 
         <div className="space-y-2">
           <label className="block text-gray-700">ATK Result</label>
-          <input
-            type="text"
+          <select
             value={atkResult}
-            onChange={(e) => setAtkResult(e.target.value)}
+            onChange={handleAtkResultChange}
             className="w-full p-2 border rounded-lg"
-            placeholder="Enter the result (e.g., positive, negative)"
-          />
+            required
+          >
+            <option value="" disabled>Select ATK Result</option>
+            <option value="positive">Positive</option>
+            <option value="negative">Negative</option>
+          </select>
         </div>
 
         <div className="space-y-2">
           <label className="block text-gray-700">Upload Photo (Optional)</label>
-          
+
           <div className="flex items-center justify-center w-full">
             <label
               htmlFor="dropzone-file"
@@ -155,7 +160,6 @@ const PostPage = () => {
 
       {/* Button to navigate back to the dashboard */}
       <a
-        
         href="/dashboard"
         className="w-full p-3 bg-gray-600 text-white rounded-lg mt-4"
       >

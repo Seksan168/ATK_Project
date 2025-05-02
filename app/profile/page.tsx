@@ -37,10 +37,10 @@ export default function Profile() {
 
     // Cleanup interval and remove user details from localStorage when session changes or on logout
     return () => {
-      clearInterval(interval);
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('isLoggedIn');
+      // clearInterval(interval);
+      // localStorage.removeItem('userId');
+      // localStorage.removeItem('userName');
+      // localStorage.removeItem('isLoggedIn');
     };
   }, [status, session, router]);
 
