@@ -9,11 +9,14 @@ COPY package.json package-lock.json ./
 
 # Step 4: Install the dependencies
 RUN npm install
-RUN npx prisma generate
+
 
 # Step 5: Copy the rest of the application code
 COPY . .
 
+RUN npx prisma generate
+
+# RUN npx prisma migrate deploy
 # Step 6: Build the Next.js application
 RUN npm run build
 
@@ -21,4 +24,6 @@ RUN npm run build
 EXPOSE 3000
 
 # Step 8: Start the application in production mode
-CMD ["npm", "start"]
+# CMD ["npm", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+
