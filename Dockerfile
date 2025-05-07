@@ -9,6 +9,7 @@ COPY package.json package-lock.json ./
 
 # Step 4: Install the dependencies
 RUN npm install
+RUN npx prisma generate
 
 # Step 5: Copy the rest of the application code
 COPY . .
