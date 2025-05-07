@@ -50,6 +50,6 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error resetting password:', error);
     // Log detailed error
-    return NextResponse.json({ error: `Error resetting password: ${error.message}` }, { status: 500 });
+    return NextResponse.json({ error: `Error resetting password: ${(error as any).message}` }, { status: 500 });
   }
 }

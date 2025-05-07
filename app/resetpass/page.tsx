@@ -1,32 +1,32 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation'; // Import useSearchParams instead of useRouter
+"use client";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation"; // Import useSearchParams
 
 const ResetPassword = () => {
   const searchParams = useSearchParams();
-  const token = searchParams.get('token'); // Use searchParams to get the token from the query
+  const token = searchParams.get("token") || ""; // Get token from search params
 
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [isTokenValid, setIsTokenValid] = useState(false);
 
+  // Validate token using useEffect
   useEffect(() => {
     if (!token) {
-      setError('Invalid or expired token');
+      setError("Invalid or expired token");
       setIsTokenValid(false);
       return;
     }
 
-    // Token validation logic here
     const validateToken = async () => {
       try {
-        const response = await fetch('/api/validate-reset-token', {
-          method: 'POST',
+        const response = await fetch("/api/validate-reset-token", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ token }),
         });
@@ -36,38 +36,39 @@ const ResetPassword = () => {
         if (response.ok) {
           setIsTokenValid(true);
         } else {
-          setError(data.error || 'Invalid or expired token');
+          setError(data.error || "Invalid or expired token");
         }
       } catch (err) {
-        setError('Error verifying token');
+        setError("Error verifying token");
       }
     };
 
     validateToken();
-  }, [token]);
+  }, [token]); // Depend on token to re-run when it changes
 
+  // Handle password reset form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     if (!password || !confirmPassword) {
-      setError('Please fill in both fields');
+      setError("Please fill in both fields");
       return;
     }
 
     setLoading(true);
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
 
     try {
-      const response = await fetch('/api/auth/resetpass', {
-        method: 'POST',
+      const response = await fetch("/api/auth/resetpass", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ token, password }),
       });
@@ -77,10 +78,10 @@ const ResetPassword = () => {
       if (response.ok) {
         setMessage(data.message); // Success message
       } else {
-        setError(data.error || 'Something went wrong');
+        setError(data.error || "Something went wrong");
       }
     } catch (err) {
-      setError('Error resetting password');
+      setError("Error resetting password");
       console.error(err);
     } finally {
       setLoading(false);
@@ -123,7 +124,7 @@ const ResetPassword = () => {
             className="w-full p-3 bg-blue-600 text-white rounded-lg"
             disabled={loading}
           >
-            {loading ? 'Resetting...' : 'Reset Password'}
+            {loading ? "Resetting..." : "Reset Password"}
           </button>
         </form>
       ) : (
@@ -133,4 +134,11 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
+// Wrap the ResetPassword component inside Suspense for handling async data
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPassword />
+    </Suspense>
+  );
+}
