@@ -6,31 +6,46 @@ import fs from 'node:fs/promises';
 
 const prisma = new PrismaClient();
 
-export async function GET(request: Request) {
-  try {
-    const userId = request.headers.get('userId');  // Assuming the userId is passed in the headers
-    
-    // const userId = sessionStorage.getItem('userId'); // Get userId from session storage
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'User ID is required' }), { status: 400 });
 
-      
+export async function GET(req) {
+  try {
+    // Retrieve the userId from the request headers
+    const userId = req.headers.get('userId');
+    
+    // Check if userId is provided, return an error if not
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'userId is required in headers' }), {
+        status: 400,
+      });
     }
 
-    // Fetch posts from the database for the logged-in user
+    // Retrieve all posts from the database
     const posts = await prisma.post.findMany({
       where: {
-        userId: parseInt(userId),
+        userId: parseInt(userId),  // Optionally filter posts by the provided userId
+      },
+      include: {
+        user: true, // Include the associated user data
       },
     });
 
-    return new Response(JSON.stringify(posts), { status: 200 });
+    // Return posts as a JSON response
+    return new Response(JSON.stringify(posts), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (error) {
     console.error('Error fetching posts:', error);
-    return new Response(JSON.stringify({ error: 'Error fetching posts' }), { status: 500 });
+    return new Response(
+      JSON.stringify({ error: 'An error occurred while fetching posts' }),
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
   }
 }
-
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();  // Get the form data

@@ -8,6 +8,7 @@ const AtkUploadForm = () => {
   const [photo, setPhoto] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   // Allowed file types and maximum size (2MB)
   const allowedFileTypes = ['image/jpeg', 'image/png', 'image/heic'];
@@ -16,11 +17,12 @@ const AtkUploadForm = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const file = e.target.files[0];
-      
+
       // Check file type
       if (!allowedFileTypes.includes(file.type)) {
         setErrorMessage('Invalid file type. Please upload a .jpg, .png, or .heic image.');
         setPhoto(null);
+        setPhotoPreview(null);
         return;
       }
 
@@ -28,11 +30,13 @@ const AtkUploadForm = () => {
       if (file.size > maxSize) {
         setErrorMessage('File size exceeds 2MB. Please upload a smaller image.');
         setPhoto(null);
+        setPhotoPreview(null);
         return;
       }
 
-      // If everything is fine, set the photo
+      // If everything is fine, set the photo and preview it
       setPhoto(file);
+      setPhotoPreview(URL.createObjectURL(file)); // Set the photo preview
       setErrorMessage(''); // Clear any error message
     }
   };
@@ -56,7 +60,7 @@ const AtkUploadForm = () => {
     setErrorMessage('');
 
     try {
-      const response = await fetch('/api/atk-upload', {
+      const response = await fetch('/api/atk', {
         method: 'POST',
         body: formData,
       });
@@ -108,13 +112,15 @@ const AtkUploadForm = () => {
 
         <div className="space-y-2">
           <label className="block text-gray-700">ATK Result</label>
-          <input
-            type="text"
+          <select
             value={atkResult}
             onChange={(e) => setAtkResult(e.target.value)}
             className="w-full p-2 border rounded-lg"
-            placeholder="Enter the result (e.g., positive, negative)"
-          />
+          >
+            <option value="">Select Result</option>
+            <option value="positive">Positive</option>
+            <option value="negative">Negative</option>
+          </select>
         </div>
 
         <div className="space-y-2">
@@ -124,6 +130,11 @@ const AtkUploadForm = () => {
             onChange={handleFileChange}
             className="w-full p-2 border rounded-lg"
           />
+          {photoPreview && (
+            <div className="mt-4">
+              <img src={photoPreview} alt="Preview" className="max-w-xs mx-auto" />
+            </div>
+          )}
         </div>
 
         <button
