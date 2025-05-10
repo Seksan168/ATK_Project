@@ -1,7 +1,8 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
-getting database by using docker-compose.yml 
+
+getting database by using docker-compose.yml
 
 run npx prisma migate
 
@@ -42,3 +43,5 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 Hope you code with out error
 Hi what you have to do here is to make sure that you are Hi What are you doing here to make ny day happy and not sober
+
+# Sent file on Sat 10 May
