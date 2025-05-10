@@ -41,4 +41,4 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 Hope you code with out error
-Hi what you have to do here is to make sure that you are 
+Hi what you have to do here is to make sure that you are Hi What are you doing here to make ny day happy and not sober
