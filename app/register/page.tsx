@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from "next/navigation";
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -7,6 +8,7 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   
   // CAPTCHA states
   const [captcha, setCaptcha] = useState<string>('');  // Store generated CAPTCHA
@@ -46,6 +48,7 @@ export default function Register() {
 
     if (response.ok) {
       setMessage('Registration successful!');
+      router.push("/login");
       setError(null); // Clear any previous error
     } else {
       // If the response status is not OK, display the error message
